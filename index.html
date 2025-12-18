@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="is">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Magnus Franklin</title>
+  <meta name="description" content="Calling card website." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <main class="card">
+    <header class="header">
+      <h1>Magnús Franklín</h1>
+      <p class="tagline">IT infrastucture specialist | Passionate about automation & efficiency in all things IT.</p>
+    </header>
+
+    <section class="about">
+      <p>
+        Short intro. One or two sentences about what you do and who you help.
+      </p>
+    </section>
+
+    <section class="links">
+      <a class="btn" href="mailto:magnus@franklin.is">Email</a>
+      <a class="btn" href="https://www.linkedin.com/in/magnus-franklin" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn" href="https://github.com/maggifrank" target="_blank" rel="noopener">GitHub</a>
+      <!--<a class="btn" href="https://cv.franklin.is" target="_blank" rel="noopener">CV</a>-->
+    </section>
+
+    <footer class="footer">
+      <span>Reykjavík · Iceland</span>
+      <span>© <span id="year"></span> Magnús Franklín</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
