@@ -1,0 +1,8 @@
+# Proxy the public Sund snapshot through this origin. Netlify fetches it
+# server-side, so the browser sees a same-origin request and no CORS headers
+# are needed on sund-swim.netlify.app.
+[[redirects]]
+  from = "/sund.json"
+  to = "https://sund-swim.netlify.app/state.json"
+  status = 200
+  force = true
