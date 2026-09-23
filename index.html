@@ -80,20 +80,15 @@
         var n = d.trips.filter(function (t) { return t.at.slice(0, 4) === y; }).length;
         if (!n) return;
 
-        function link(text) {
-          var a = document.createElement("a");
-          a.href = "https://sund.talva.is";
-          a.target = "_blank";
-          a.rel = "noopener";
-          a.textContent = text;
-          return a;
-        }
-
         var el = document.getElementById("sundtext");
-        el.textContent = "Það sem af er ári hef ég farið ";
-        el.appendChild(link(n + " sinnum"));
-        el.appendChild(document.createTextNode(" í sund — sjá "));
-        el.appendChild(link("sund.talva.is"));
+        var a = document.createElement("a");
+        a.href = "https://sund.talva.is";
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = "sund.talva.is";
+
+        el.textContent = "Það sem af er ári hef ég farið " + n + " sinnum í sund — sjá ";
+        el.appendChild(a);
         el.appendChild(document.createTextNode("."));
       })
       .catch(function () {});
