@@ -47,10 +47,8 @@
       <p>
         Utan vinnu má yfirleitt finna mig í ræktinni, í lauginni eða í gufunni
         — helst öllu þrennu sama daginn. Ég hef sterkar skoðanir á sundlaugum
-        landsins og er alltaf til í að deila þeim. Það sem af er ári hef ég
-        farið <a href="https://sund.talva.is" target="_blank" rel="noopener"><span
-        id="sund">63</span> sinnum</a> í sund — sjá
-        <a href="https://sund.talva.is" target="_blank" rel="noopener">sund.talva.is</a>.
+        landsins og er alltaf til í að deila þeim.
+        <span id="sundtext">Ég veit ekki hve oft ég hef farið í sund á árinu.</span>
       </p>
       <p class="ps">
         Já, gervigreind skrifaði þennan texta. Skoðanirnar á sundlaugunum eru þó mínar.
@@ -73,14 +71,30 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Sundferðir þessa árs — sótt í gegnum proxy á /sund.json.
-    // Ef sóknin mistekst stendur talan í HTML-inu óbreytt.
+    // Sundferðir þessa árs, sóttar gegnum proxy á /sund.json. Mistakist það
+    // stendur setningin í HTML-inu óbreytt — engin úrelt tala.
     fetch("/sund.json", { cache: "no-store" })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
       .then(function (d) {
         var y = String(new Date().getFullYear());
         var n = d.trips.filter(function (t) { return t.at.slice(0, 4) === y; }).length;
-        if (n > 0) document.getElementById("sund").textContent = n;
+        if (!n) return;
+
+        function link(text) {
+          var a = document.createElement("a");
+          a.href = "https://sund.talva.is";
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = text;
+          return a;
+        }
+
+        var el = document.getElementById("sundtext");
+        el.textContent = "Það sem af er ári hef ég farið ";
+        el.appendChild(link(n + " sinnum"));
+        el.appendChild(document.createTextNode(" í sund — sjá "));
+        el.appendChild(link("sund.talva.is"));
+        el.appendChild(document.createTextNode("."));
       })
       .catch(function () {});
   </script>
