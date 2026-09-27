@@ -37,6 +37,25 @@ site, and they do not render SVG, which is why the PNG exists at all. LinkedIn c
 previews aggressively; force a refresh with the
 [Post Inspector](https://www.linkedin.com/post-inspector/).
 
+## Swim counter
+
+The card shows how many times I have been swimming in the current calendar
+year. The number is fetched at page load, never hardcoded — if the fetch
+fails the sentence falls back to "Ég veit ekki hve oft ég hef farið í sund á
+árinu" rather than showing a stale count.
+
+`netlify.toml` rewrites `/sund.json` to the public Sund snapshot at
+`sund.talva.is`. Netlify fetches it server-side, so the browser sees a
+same-origin request and the Sund site needs no CORS headers.
+
+Note that `sund.talva.is` is split-horizon: on the tailnet it resolves to the
+internal, access-code-gated app where `/state.json` does not exist. From the
+public internet it is the read-only snapshot. Test it with the public path:
+
+```sh
+curl --resolve sund.talva.is:443:104.21.28.39 https://sund.talva.is/state.json
+```
+
 ## Deployment
 
 Deployed by Netlify from this repo. DNS is hosted at Cloudflare, delegated from ISNIC.

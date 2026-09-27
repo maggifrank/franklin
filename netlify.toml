@@ -1,8 +1,8 @@
 # Proxy the public Sund snapshot through this origin. Netlify fetches it
-# server-side, so the browser sees a same-origin request and no CORS headers
-# are needed on sund-swim.netlify.app.
+# server-side, so the browser makes a same-origin request and no CORS
+# headers are needed on the Sund site.
 [[redirects]]
   from = "/sund.json"
-  to = "https://sund-swim.netlify.app/state.json"
+  to = "https://sund.talva.is/state.json"
   status = 200
   force = true
