@@ -99,7 +99,7 @@
         <a href="mailto:magnus@franklin.is">Netfang</a>
         <a href="https://www.linkedin.com/in/magnus-franklin" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://github.com/maggifrank" target="_blank" rel="noopener">GitHub</a>
-        <!--<a href="https://cv.franklin.is" target="_blank" rel="noopener">Ferilskrá</a>-->
+        <a href="https://cv.franklin.is" target="_blank" rel="noopener">Um mig</a>
       </nav>
 
       <footer class="footer">
@@ -112,18 +112,39 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Sundferðir þessa árs, sóttar gegnum proxy á /sund.json. Mistakist það
-    // stendur setningin í HTML-inu óbreytt — engin úrelt tala.
-    fetch("/sund.json", { cache: "no-store" })
+    // Sundferðir þessa árs, sóttar beint úr Sund. Opinbera yfirlitið telur
+    // ekki stakar ferðir lengur, bara samtölur á mánuði — þess vegna er lagt
+    // saman úr byMonth. Mistakist sóknin stendur setningin í HTML-inu
+    // óbreytt; engin úrelt tala.
+    var SUND = {
+      api: "https://nyblioaklfiqyxrftpzx.supabase.co/rest/v1/rpc/public_profile",
+      key: "sb_publishable_61cQKzj0hs1L9aNy2EWB_A_UsPT-ias",
+      user: "franklinmagnus",
+      page: "https://sund.talva.is/franklinmagnus/"
+    };
+
+    fetch(SUND.api, {
+      method: "POST",
+      headers: {
+        apikey: SUND.key,
+        Authorization: "Bearer " + SUND.key,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ p_username: SUND.user })
+    })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
       .then(function (d) {
+        var months = d && d.byMonth;
+        if (!months) return;
         var y = String(new Date().getFullYear());
-        var n = d.trips.filter(function (t) { return t.at.slice(0, 4) === y; }).length;
+        var n = Object.keys(months).reduce(function (sum, k) {
+          return k.slice(0, 4) === y ? sum + months[k] : sum;
+        }, 0);
         if (!n) return;
 
         var el = document.getElementById("sundtext");
         var a = document.createElement("a");
-        a.href = "https://sund.talva.is";
+        a.href = SUND.page;
         a.target = "_blank";
         a.rel = "noopener";
         a.textContent = "sund.talva.is";

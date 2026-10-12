@@ -44,16 +44,32 @@ year. The number is fetched at page load, never hardcoded — if the fetch
 fails the sentence falls back to "Ég veit ekki hve oft ég hef farið í sund á
 árinu" rather than showing a stale count.
 
-`netlify.toml` rewrites `/sund.json` to the public Sund snapshot at
-`sund.talva.is`. Netlify fetches it server-side, so the browser sees a
-same-origin request and the Sund site needs no CORS headers.
-
-Note that `sund.talva.is` is split-horizon: on the tailnet it resolves to the
-internal, access-code-gated app where `/state.json` does not exist. From the
-public internet it is the read-only snapshot. Test it with the public path:
+The data comes from Sund's public profile, a Supabase RPC:
 
 ```sh
-curl --resolve sund.talva.is:443:104.21.28.39 https://sund.talva.is/state.json
+POST https://nyblioaklfiqyxrftpzx.supabase.co/rest/v1/rpc/public_profile
+     {"p_username": "franklinmagnus"}
+```
+
+called anonymously with the publishable key. That key is already embedded in
+Sund's own public client, so it is not a secret — but it does now live in two
+repos, and rotating it means changing both.
+
+The public snapshot reports sums only: `trips` comes back as an empty array,
+so the count is summed from `byMonth`, whose keys are `YYYY-MM`. Anything
+that needs individual trip dates cannot be served from the public profile.
+
+Supabase sends CORS headers, so the page calls it directly. There is no
+`netlify.toml`; an earlier version proxied a static `state.json` through this
+origin, which the RPC made unnecessary.
+
+Note that `sund.talva.is` is split-horizon: on the tailnet it resolves to an
+internal address and serves a different, access-gated app. From the public
+internet it is the Sund site. Test the public path explicitly:
+
+```sh
+curl --resolve sund.talva.is:443:$(dig +short sund.talva.is @1.1.1.1 | head -1) \
+  https://sund.talva.is/franklinmagnus/
 ```
 
 ## Deployment
