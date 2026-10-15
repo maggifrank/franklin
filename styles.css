@@ -6,6 +6,8 @@
   --ink:#e2e9ec;
   --muted:#79868c;
   --line:#1d262a;
+  --bob:17px;        /* idle bob travel, each way */
+  --swim:78px;       /* slow drift up and down the current */
 }
 
 *{box-sizing:border-box}
@@ -32,18 +34,165 @@ body{
   position:relative;
   overflow:hidden;
 }
+/* The river: three bands of wavy stripes drifting downward at different
+   speeds. Each is one SVG tile repeated vertically, and the animation moves
+   it by exactly one tile height, so the loop has no seam. */
+.river{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.river i{position:absolute;inset:0;display:block;background-repeat:repeat;will-change:background-position}
+.river i:nth-child(1){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 120'%3E%3Cpath d='M30,0 C39,20.4 39,39.6 30,60 C21,80.4 21,99.6 30,120' fill='none' stroke='%23ffffff' stroke-opacity='.07' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size:60px 120px;
+  animation:flow1 15s linear infinite;
+}
+.river i:nth-child(2){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 90'%3E%3Cpath d='M22,0 C28,15.3 28,29.7 22,45 C16,60.3 16,74.7 22,90' fill='none' stroke='%23ffffff' stroke-opacity='.05' stroke-width='1'/%3E%3C/svg%3E");
+  background-size:44px 90px;
+  animation:flow2 9s linear infinite;
+}
+.river i:nth-child(3){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 180'%3E%3Cpath d='M45,0 C59,30.6 59,59.4 45,90 C31,120.6 31,149.4 45,180' fill='none' stroke='%23ffffff' stroke-opacity='.085' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-size:90px 180px;
+  animation:flow3 24s linear infinite;
+}
+@keyframes flow1{from{background-position:0 0}to{background-position:0 120px}}
+@keyframes flow2{from{background-position:0 0}to{background-position:0 90px}}
+@keyframes flow3{from{background-position:0 0}to{background-position:0 180px}}
+
+/* Things carried along by the current: leaves, a twig, a few bubbles.
+   `top` is animated rather than translateY so the travel is a share of the
+   panel's height, which differs a lot between desktop and phone. */
+.debris{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.debris i{
+  position:absolute;
+  display:block;
+  background-repeat:no-repeat;
+  background-size:contain;
+  animation:drift linear infinite;
+}
+@keyframes drift{
+  from{top:-18%;transform:rotate(0deg) translateX(0)}
+  50%{transform:rotate(100deg) translateX(9px)}
+  to{top:112%;transform:rotate(210deg) translateX(0)}
+}
+.debris .leaf{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 12'%3E%3Cpath d='M1,6 C6,-1 15,-1 19,6 C15,13 6,13 1,6 Z' fill='%23bfe4ef' fill-opacity='.5'/%3E%3C/svg%3E")}
+.debris .twig{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 6'%3E%3Cpath d='M1,3 L23,3' stroke='%23cfe8f0' stroke-opacity='.45' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")}
+.debris .bub{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ccircle cx='5' cy='5' r='3.6' fill='none' stroke='%23e6f5fa' stroke-opacity='.4'/%3E%3C/svg%3E")}
+
+.debris .weed{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 16'%3E%3Cpath d='M4,0 C7,4 1,8 4,12 C5,14 4,15 4,16' fill='none' stroke='%23cdeaf2' stroke-opacity='.4' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E")}
+.debris i:nth-child(1){left:6%;width:19px;height:11px;animation-duration:17s;animation-delay:-2s}
+.debris i:nth-child(2){left:13%;width:8px;height:8px;animation-duration:12s;animation-delay:-7s}
+.debris i:nth-child(3){left:21%;width:24px;height:6px;animation-duration:20s;animation-delay:-14s}
+.debris i:nth-child(4){left:28%;width:13px;height:8px;animation-duration:23s;animation-delay:-9s}
+.debris i:nth-child(5){left:34%;width:10px;height:20px;animation-duration:27s;animation-delay:-18s}
+.debris i:nth-child(6){left:40%;width:6px;height:6px;animation-duration:11s;animation-delay:-4s}
+.debris i:nth-child(7){left:47%;width:16px;height:10px;animation-duration:26s;animation-delay:-19s}
+.debris i:nth-child(8){left:53%;width:21px;height:6px;animation-duration:29s;animation-delay:-3s}
+.debris i:nth-child(9){left:59%;width:9px;height:9px;animation-duration:13s;animation-delay:-11s}
+.debris i:nth-child(10){left:65%;width:22px;height:13px;animation-duration:19s;animation-delay:-16s}
+.debris i:nth-child(11){left:71%;width:8px;height:17px;animation-duration:24s;animation-delay:-6s}
+.debris i:nth-child(12){left:77%;width:7px;height:7px;animation-duration:15s;animation-delay:-12s}
+.debris i:nth-child(13){left:83%;width:18px;height:5px;animation-duration:22s;animation-delay:-21s}
+.debris i:nth-child(14){left:88%;width:11px;height:7px;animation-duration:16s;animation-delay:-8s}
+.debris i:nth-child(15){left:93%;width:5px;height:5px;animation-duration:10s;animation-delay:-5s}
+.debris i:nth-child(16){left:97%;width:15px;height:9px;animation-duration:28s;animation-delay:-23s}
+
+/* The wrapper carries the dodge, the svg carries the bob, and .swim the
+   drift — one element can only hold one transform, so they live apart. */
+.turtle{position:relative;z-index:1;display:grid;place-items:center;will-change:transform}
+
+/* She rides the current: a slow wander up and down the stream, with a little
+   lateral drift at the midpoint so the path is a lazy S. */
+.swim{
+  display:grid;
+  place-items:center;
+  animation:swim 17s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes swim{
+  0%{transform:translate(0,calc(var(--swim) * -1))}
+  50%{transform:translate(11px,0)}
+  100%{transform:translate(0,var(--swim))}
+}
+@media(prefers-reduced-motion:reduce){ .swim{animation:none} }
+
+/* Flippers and tail. The SVG already positions each flipper with a transform
+   attribute, and a CSS transform would replace it outright — so the base
+   angle is carried in --a and the keyframe swings around it. transform-box
+   makes the origin the turtle's centre in user units. */
+.flip,.tail{transform-box:view-box}
+.flip{
+  transform-origin:50px 50px;
+  animation:paddle 1.9s ease-in-out infinite;
+}
+@keyframes paddle{
+  0%,100%{transform:rotate(calc(var(--a) - 8deg))}
+  50%    {transform:rotate(calc(var(--a) + 8deg))}
+}
+/* diagonal pairs stroke together, as a swimming turtle's do */
+.f1{--a:-30deg}
+.f2{--a:-150deg;animation-delay:-.95s}
+.f3{--a:30deg;animation-delay:-.95s}
+.f4{--a:150deg}
+
+.tail{
+  transform-origin:50px 77px;   /* where it joins the shell */
+  animation:tailwag 2.6s ease-in-out infinite;
+}
+@keyframes tailwag{
+  0%,100%{transform:rotate(-10deg)}
+  50%    {transform:rotate(10deg)}
+}
+
+.turtle.angry .flip{animation-duration:.34s}
+.turtle.angry .tail{animation-duration:.42s}
+@media(prefers-reduced-motion:reduce){ .flip,.tail{animation:none} }
+
+/* Blinking sits on a <g> around the eyes, not on the eyes themselves: the
+   scowl already owns their transform, and an animation would override a
+   plain declaration outright. On separate elements the two multiply. */
+.eyes{
+  transform-box:view-box;
+  transform-origin:50px 12px;      /* the eye line */
+  animation:blink 6.4s infinite;
+}
+@keyframes blink{
+  0%,92%,94.4%,96.6%,100%{transform:scaleY(1)}
+  93.2%,95.6%{transform:scaleY(.08)}   /* a quick double blink */
+}
+.turtle.angry .eyes{animation:none}    /* too furious to blink */
+@media(prefers-reduced-motion:reduce){ .eyes{animation:none} }
+
+/* Eyes: level normally, slanted into a scowl while she is lunging. */
+.turtle .eye{transform-box:fill-box;transform-origin:center;transition:transform .1s ease-out}
+.turtle.angry .eye{transform:scaleX(2.4) scaleY(.3)}
+.turtle.angry .eye-l{transform:rotate(49deg) scaleX(2.4) scaleY(.3)}
+.turtle.angry .eye-r{transform:rotate(-49deg) scaleX(2.4) scaleY(.3)}
+
+/* While she is angry the bob gives way to a shake, and she flushes. Swapping
+   the animation on the same element means the two can never run at once. */
+.turtle.angry svg{animation:mad .07s linear 12;color:#ff5a32}
+@keyframes mad{
+  0%,100%{transform:rotate(0deg)}
+  25%{transform:rotate(15deg)}
+  75%{transform:rotate(-15deg)}
+}
+
 .panel svg{
   width:min(62%,330px);
   height:auto;
   display:block;
   color:var(--turtle);
   animation:bob 6s ease-in-out infinite;
+  transition:color .9s ease-out;
 }
+.turtle.angry svg{transition:color .06s linear}
 @keyframes bob{
-  0%,100%{transform:translateY(-11px) rotate(-2.2deg)}
-  50%{transform:translateY(11px) rotate(2.2deg)}
+  0%,100%{transform:translateY(calc(var(--bob) * -1)) rotate(-2.2deg)}
+  50%{transform:translateY(var(--bob)) rotate(2.2deg)}
 }
-@media(prefers-reduced-motion:reduce){ .panel svg{animation:none} }
+
+@media(prefers-reduced-motion:reduce){ .panel svg,.river i,.debris i{animation:none} }
+@media(prefers-reduced-motion:reduce){ .debris{display:none} }
 
 .mark{
   position:absolute;
@@ -117,7 +266,8 @@ a{color:var(--accent)}
 @media(max-width:820px){
   body{display:block}
   .panel{min-height:0;padding:34px 24px 14px}
-  .panel svg{width:132px;animation-duration:7s}
+  .panel svg{width:132px;animation-duration:7s;--bob:11px}
+  .swim{--swim:20px}
   .mark{display:none}
   .content{display:block;padding:0}
   .head{background:var(--panel);padding:0 24px 30px;margin:0}

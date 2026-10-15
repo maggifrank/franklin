@@ -33,6 +33,10 @@
 
 <body>
   <div class="panel">
+    <div class="river" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="debris" aria-hidden="true"><i class="leaf"></i><i class="bub"></i><i class="twig"></i><i class="leaf"></i><i class="weed"></i><i class="bub"></i><i class="leaf"></i><i class="twig"></i><i class="bub"></i><i class="leaf"></i><i class="weed"></i><i class="bub"></i><i class="twig"></i><i class="leaf"></i><i class="bub"></i><i class="leaf"></i></div>
+    <div class="turtle" id="turtle">
+      <div class="swim">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         <defs>
         <!-- This mask cuts the perfect lines into the solid black shell -->
@@ -54,24 +58,28 @@
         <g fill="currentColor">
         <!-- 4 Flippers (Rotated perfectly to match the angled shell edges) -->
         <!-- Top Right -->
-        <rect x="76" y="44" width="10" height="12" transform="rotate(-30 50 50)" />
+        <rect class="flip f1" x="76" y="44" width="10" height="12" transform="rotate(-30 50 50)" />
         <!-- Top Left -->
-        <rect x="76" y="44" width="10" height="12" transform="rotate(-150 50 50)" />
+        <rect class="flip f2" x="76" y="44" width="10" height="12" transform="rotate(-150 50 50)" />
         <!-- Bottom Right -->
-        <rect x="76" y="44" width="10" height="12" transform="rotate(30 50 50)" />
+        <rect class="flip f3" x="76" y="44" width="10" height="12" transform="rotate(30 50 50)" />
         <!-- Bottom Left -->
-        <rect x="76" y="44" width="10" height="12" transform="rotate(150 50 50)" />
+        <rect class="flip f4" x="76" y="44" width="10" height="12" transform="rotate(150 50 50)" />
         <!-- Tail -->
-        <polygon points="44,77 56,77 50,91" />
+        <polygon class="tail" points="44,77 56,77 50,91" />
         <!-- Blocky Head -->
         <path d="M 43,23 L 43,12 L 46,7 L 54,7 L 57,12 L 57,23 Z" />
         <!-- The Shell -->
         <polygon points="66,22.3 82,50 66,77.7 34,77.7 18,50 34,22.3" mask="url(#shell-cuts)" />
         </g>
         <!-- White Eyes -->
-        <rect x="46.5" y="11" width="2" height="2" fill="var(--panel)" />
-        <rect x="51.5" y="11" width="2" height="2" fill="var(--panel)" />
+        <g class="eyes">
+        <rect class="eye eye-l" x="46.5" y="11" width="2" height="2" fill="var(--panel)" />
+        <rect class="eye eye-r" x="51.5" y="11" width="2" height="2" fill="var(--panel)" />
+        </g>
         </svg>
+      </div>
+    </div>
     <div class="mark">franklin.is</div>
   </div>
 
@@ -99,7 +107,7 @@
         <a href="mailto:magnus@franklin.is">Netfang</a>
         <a href="https://www.linkedin.com/in/magnus-franklin" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://github.com/maggifrank" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://cv.franklin.is" target="_blank" rel="noopener">Um mig</a>
+        <!--<a href="https://cv.franklin.is" target="_blank" rel="noopener">Um mig</a>-->
       </nav>
 
       <footer class="footer">
@@ -154,6 +162,67 @@
         el.appendChild(document.createTextNode("."));
       })
       .catch(function () {});
+
+    // Skjaldbakan hopar undan þegar smellt er á hana sjálfa — og við fimmta
+    // smell í röð snýr hún við og glefsar í bendilinn.
+    // Bobbið situr á <svg>, hopið á umgjörðinni, svo þau rekast ekki á.
+    (function () {
+      var turtle = document.getElementById("turtle");
+      if (!turtle) return;
+      var svg = turtle.querySelector("svg");
+      if (!svg) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      var BITE_AT = 5;      // smellir þar til hún bítur
+      var FORGET = 2500;    // hættir að telja eftir þessa kyrrð
+      var pokes = 0;
+      var back, forget;
+
+      function settle(delay, ms) {
+        clearTimeout(back);
+        back = setTimeout(function () {
+          turtle.style.transition = "transform " + ms + "s cubic-bezier(.22,1,.36,1)";
+          turtle.style.transform = "translate(0,0) scale(1)";
+          turtle.classList.remove("angry");
+        }, delay);
+      }
+
+      svg.addEventListener("pointerdown", function (e) {
+        // aðeins beint á hana: gegnsæ svæði inni í kassanum skila <svg> sjálfu,
+        // málaðir fletir skila sínu eigin formi
+        if (e.target === svg) return;
+
+        var r = svg.getBoundingClientRect();
+        var dx = (r.left + r.width / 2) - e.clientX;
+        var dy = (r.top + r.height / 2) - e.clientY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 6) { dx = 6; dy = 2; dist = 6.3; }   // smellt í miðjuna
+
+        pokes++;
+        clearTimeout(forget);
+        forget = setTimeout(function () { pokes = 0; }, FORGET);
+
+        if (pokes >= BITE_AT) {
+          pokes = 0;
+          // snöggt stökk Í áttina að bendlinum — dx/dy vísa frá honum
+          var lunge = Math.max(r.width, r.height) * 0.58;
+          turtle.classList.add("angry");
+          turtle.style.transition = "transform .1s cubic-bezier(.3,1.8,.5,1)";
+          turtle.style.transform =
+            "translate(" + (-dx / dist * lunge).toFixed(1) + "px," +
+                           (-dy / dist * lunge).toFixed(1) + "px) scale(1.36)";
+          settle(900, 0.75);
+          return;
+        }
+
+        var shove = 30;
+        turtle.style.transition = "transform .26s cubic-bezier(.22,1,.36,1)";
+        turtle.style.transform =
+          "translate(" + (dx / dist * shove).toFixed(1) + "px," +
+                         (dy / dist * shove).toFixed(1) + "px) scale(1)";
+        settle(700, 1.9);
+      });
+    })();
   </script>
 </body>
 </html>
